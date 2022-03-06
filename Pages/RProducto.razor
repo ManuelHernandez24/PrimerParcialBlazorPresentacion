@@ -1,0 +1,290 @@
+﻿@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Notifications
+
+@page "/RProducto"
+<div class="col-lg-12 control-section toast-default-section">
+    <SfToast ID="toast_default" @ref="ToastObj" Title="Adaptive Tiles Meeting" Content="@ToastContent" Timeout="5000"
+        Icon="e-meeting">
+        <ToastPosition X="@ToastPosition"></ToastPosition>
+    </SfToast>
+    <div class="col-lg-12 col-sm-12 col-md-12 center">
+    </div>
+</div>
+<style>
+    #toast_default .e-meeting::before {
+        content: "\e705";
+        font-size: 17px;
+    }
+
+    .bootstrap4 #toast_default .e-meeting::before {
+        content: "\e763";
+        font-size: 20px;
+    }
+</style>
+<EditForm Model="producto" OnValidSubmit="Guardar">
+
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="card">
+        <div class="card-header">
+            <h3>Registro</h3>
+        </div>
+
+        <div class="card-body">
+            <form>
+
+                @*Producto id*@
+
+                <div class="form-row align-items-center">
+
+                    <div class="col">
+                        <div class="form-group">
+                            <label>ProductoID</label>
+                            <div class="input-group">
+                                <InputNumber @bind-Value="producto.ProductoId" class="form-control col-4" />
+                                <div>
+                                    <button type="button" class="btn btn-primary input-group-text"
+                                        @onclick="Buscar">Buscar</button>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                @* Descricion *@
+                <div class="form-group">
+                    <label>Descricion</label>
+                    <InputText class="form-control" @bind-Value="producto.Descripcion" />
+                    <ValidationMessage For="@(() =>producto.Descripcion)" />
+                </div>
+                @* Exitencia *@
+                <div class="form-group">
+                    <label>Exitencia</label>
+                    <InputNumber class="form-control" @bind-Value="producto.Existencia" />
+                    <ValidationMessage For="@(() =>producto.Existencia)" />
+                </div>
+                @* Costo *@
+                <div class="form-group">
+                    <label>Costo</label>
+                    <InputNumber class="form-control" @bind-Value="producto.Costo" />
+                    <ValidationMessage For="@(() =>producto.Costo)" />
+                </div>
+                @* Precio *@
+                <div class="form-group">
+                    <label>Precio</label>
+                    <InputNumber class="form-control" @bind-Value="producto.Precio" />
+                    <ValidationMessage For="@(() =>producto.Precio)" />
+                </div>
+                @* Ganancia *@
+                <div class="form-group">
+                    <label>Ganancia</label>
+                    <InputNumber class="form-control" @bind-Value="producto.Ganancia" />
+                    <ValidationMessage For="@(() =>producto.Ganancia)" />
+                </div>
+
+                @* Fecha *@
+                <div class="form-group">
+                    <label>Ganancia</label>
+                    <InputDate @bind-Value="producto.FechaExpiracion" />
+                    <ValidationMessage For="@(() =>producto.FechaExpiracion)" />
+                </div>
+
+                @* Valor Inventario *@
+                <div class="form-group">
+                    <label>Valor Inventario</label>
+                    <InputNumber class="form-control" @bind-Value="producto.ValorInventario" readOnly />
+                    <ValidationMessage For="@(() =>producto.ValorInventario)" />
+                </div>
+
+                <div>
+
+                    <div class="card-header">
+                        <h3>Registro de detalles</h3>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="form-row align-items-center">
+                            <div class="col">
+                                <div class="form-group" style="margin: 5px;">
+
+                                    <div class="input-group">
+                                        <div class ="container"> 
+                                            <label>Descripción</label>
+                                            <InputText style="margin: 5px;" class="form-control" @bind-Value="Presentacion"
+                                            placeholder="Descripción del detalle" />
+                                        </div>
+                                        
+                                        <div class="container">
+                                            <label>Cantidad</label>
+                                            <InputNumber style="margin: 5px;" class="form-control" @bind-Value="Cantidad" />
+                                        </div>
+                                        <div class="container">
+                                            <label>Cantidad</label>
+                                            <InputNumber style="margin: 5px;" class="form-control" @bind-Value="Precio" />
+                                        </div>
+                                        <div class="container">
+                                        <button type="button" style="margin: 5px;" class="btn btn-lg btn-primary"
+                                        
+                                            @onclick="AgregarDetalle">Agregar Detalle</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <table class="table table-light">
+                            <thead class="thead">
+                                <tr class="table">
+                                    <th>|Descripción</th>
+                                    <th>|Cantidad</th>
+                                    <th>|Precio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in producto.ProductoDetalle)
+                                {
+                                    <tr>
+                                        <td>@item.Descripcion</td>
+                                        <td>@item.Cantidad</td>
+                                        <td>RD$@item.Precio</td>
+
+                                        <td><span class="btn btn-sm btn-outline-primary oi oi-ban" href="#"
+                                            @onclick="@(() => RemoverFila(item))"> Remover</span> </td>
+                                    </tr>
+                                }
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+
+            </form>
+            <div class="card-footer">
+
+                <div class="form-group text-center" display: inline-block>
+
+                    <button type="button" class="btn btn-lg btn-primary" @onclick="Nuevo">Nuevo</button>
+
+                    <button type="submit" class="btn btn-lg btn-success">Guardar</button>
+
+                    <button type="button" class="btn btn-lg btn-danger" @onclick="Eliminar">Eliminar</button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</EditForm>
+
+@code {
+
+    SfToast ToastObj;
+    private string ToastPosition = "Right";
+    private string ToastContent;
+    private async Task ShowOnClick()
+    {
+        await this.ToastObj.ShowAsync();
+    }
+
+    [Parameter]
+    public int ProductoId { get; set; }
+
+    public Producto producto { get; set; } = new Producto();
+
+    [Inject]
+    public ProductoBLL productoBLL { get; set; }
+    public string Presentacion { get; set; }
+    public float Cantidad { get; set; }
+    public double Precio { get; set; }
+    protected override void OnInitialized()
+    {
+        producto.ProductoId = ProductoId;
+        Buscar();
+    }
+
+    public void Buscar()
+    {
+        if (this.producto.ProductoId > 0)
+        {
+            Producto encontrado = productoBLL.Buscar(this.producto.ProductoId);
+            if (encontrado != null)
+            {
+                this.producto = encontrado;
+            }
+            else
+            {
+                ToastContent = "No se ha encontrado el producto";
+                ShowOnClick();
+            }
+        }
+    }
+    public void CostoChanged()
+    {
+        PrecioOrCostoChanged();
+        ExistenciaOrCostoChanged();
+    }
+    public void GananciaChanged()
+    {
+        producto.Ganancia = Convert.ToInt32(((producto.Precio - producto.Costo) / producto.Costo) * 100);
+    }
+    public void ExistenciaOrCostoChanged()
+    {
+        producto.ValorInventario = producto.Costo * producto.Existencia;
+    }
+
+    public void PrecioOrCostoChanged()
+    {
+        producto.Ganancia = (int)((producto.Precio - producto.Costo) / producto.Costo) * 100;
+    }
+    private void AgregarDetalle()
+    {
+        this.producto.ProductoDetalle.Add(new ProductoDetalle(Presentacion, Cantidad, Precio));
+    }
+    private void RemoverFila(ProductoDetalle item)
+    {
+        this.producto.ProductoDetalle.Remove(item);
+    }
+    public void Nuevo()
+    {
+        producto = new Producto();
+    }
+    public void Guardar()
+    {
+        producto.Ganancia = (int)(((producto.Precio - producto.Costo) * 100) / producto.Costo);
+
+        if (productoBLL.Guardar(producto))
+        {
+            ToastContent = "Se ha guardado el producto con exito";
+            ShowOnClick();
+        }
+        else
+        {
+            ToastContent = "No se ha podido guardar el producto";
+            ShowOnClick();
+        }
+            
+    }
+    private void Eliminar()
+    {
+        bool eliminado;
+        eliminado = productoBLL.Eliminar(producto.ProductoId);
+        if (eliminado)
+        {
+            Nuevo();
+            ToastContent = "Se ha eliminado el producto con exito";
+            ShowOnClick();
+        }
+        else
+        {
+            ToastContent = "No se ha podido eliminar el producto";
+            ShowOnClick();
+        }
+    }
+}

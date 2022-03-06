@@ -1,0 +1,162 @@
+@using ExamenBlazor.Entidades
+@using ExamenBlazor.BLL
+
+@page "/CProducto"
+
+
+<EditForm Model="lista">
+    <DataAnnotationsValidator />
+
+    <div class="card" style="box-shadow: 8px 8px rgba(0, 0, 0, 0.26);">
+
+        <div class="card-header">
+            <h4 style="text-align: center;">Consulta de productos</h4>
+        </div>
+
+        <div class="card-body">
+            <form>
+                <div class="input-group d-flex align-items-end">
+
+                    <div class="container">
+
+
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" @bind-value = "@checkBoxFecha">
+                            <label class="form-check-label">Buscar por fecha</label>
+                        </div>
+
+                        <div>
+                            <label>Desde</label>
+                            <InputDate @bind-Value="fechaDesde" name="DataPickerDesde"/>
+                        </div>
+
+                        <div>
+                            <label>Hasta</label>
+                            <InputDate @bind-Value="fechaHasta" name="DataPickerDesde" />
+                        </div>
+                    </div>
+
+
+                    <InputSelect class="form-control col-2" @bind-Value="filtro">
+                        <option value="1">ID</option>
+                        <option value="2">Descripcion</option>
+                    </InputSelect>
+
+                    <div class="flex-fill mx-2">
+                        <label>Busqueda</label>
+                        <InputText class="form-control" @bind-Value="Criterio" />
+                    </div>
+
+                    <button type="button" class="btn btn-lg btn-primary" @onclick="Buscar"><span
+                            class="oi oi-magnifying-glass"></span>Buscar</button>
+                </div>
+            </form>
+        </div>
+        <table class="table table-light" style="box-shadow: 1px 6px rgba(0, 0, 0, 0.2);">
+            <thead class="thead">
+                <tr class="table">
+                    <th>|ID</th>
+                    <th>|Descripción</th>
+                    <th>|Existencia</th>
+                    <th>|Costo</th>
+                    <th>|Valor Inventario</th>
+                    <th>|Precio</th>
+                    <th>|Fecha expiraci&oacuten</th>
+                    <th>|Ganancia</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in lista)
+                {
+                    <tr>
+                        <td>@item.ProductoId</td>
+                        <td>@item.Descripcion</td>
+                        <td>@item.Existencia</td>
+                        <td>RD$@item.Costo</td>
+                        <td>RD$@item.ValorInventario</td>
+                        <td>RD$@item.Precio</td>
+                        <td>@item.FechaExpiracion</td>
+                        <td>@item.Ganancia%</td>
+                        <td><a class="btn btn-sm btn-outline-primary oi oi-eye" href="R_Productos/@item.ProductoId">Ver</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</EditForm>
+
+@code {
+    public string filtro { get; set; } = "1";
+    public string Criterio { get; set; } = "";
+    public DateTime fechaDesde = DateTime.Now;
+    public DateTime fechaHasta = DateTime.Now;
+    public bool checkBoxFecha = false;
+
+    public List<Producto> lista { get; set; } = new List<Producto>();
+
+    [Inject]
+
+    public ProductoBLL productoBLL { get; set; }
+
+    void CambiarCheckFecha(){
+        if(checkBoxFecha){
+            checkBoxFecha = false;
+        }else{
+            checkBoxFecha = true;
+        }
+    }
+
+    private void Buscar()
+    {
+        if(checkBoxFecha){
+            checkBoxFecha = true;
+        } else{
+            checkBoxFecha = false;
+        }
+
+            switch (filtro)
+            {
+                case "1":
+                    if (checkBoxFecha == true && Criterio != "")
+                    {
+                        lista = null;
+                        lista = productoBLL.GetList(c => c.FechaExpiracion.Date >= fechaDesde && c.FechaExpiracion <= fechaHasta && c.ProductoId == int.Parse(Criterio));
+                        
+                    } else if(checkBoxFecha == true && Criterio == ""){
+                        lista = null;
+                        lista = productoBLL.GetList(c => c.FechaExpiracion.Date >= fechaDesde && c.FechaExpiracion <= fechaHasta);
+                    }
+                    else if(!checkBoxFecha && Criterio == ""){
+                        lista = null;
+                        lista = productoBLL.GetList(p => true);
+                    }
+                    else
+                    {
+                        lista = null;
+                        lista = productoBLL.GetList(p => p.ProductoId == int.Parse(Criterio));
+                    }
+                    break;
+
+                case "2":
+                    if (checkBoxFecha == true  && Criterio != "")
+                    {                     
+                        lista = null;
+                        lista = productoBLL.GetList(c => c.FechaExpiracion.Date >= fechaDesde && c.FechaExpiracion <= fechaHasta && c.Descripcion.ToLower().Contains(Criterio.ToLower()));
+                        
+                    }else if(checkBoxFecha == true && Criterio == ""){
+                        lista = null;
+                        lista = productoBLL.GetList(c => c.FechaExpiracion.Date >= fechaDesde && c.FechaExpiracion <= fechaHasta);
+                    }else if(!checkBoxFecha && Criterio == ""){
+                        lista = null;
+                        lista = productoBLL.GetList(p => true);
+                    }
+                    else
+                    {
+                        lista = null;
+                        lista = productoBLL.GetList(p => p.Descripcion.ToLower().Contains(Criterio.ToLower()));
+                    }
+                    break;
+            }
+}
+}

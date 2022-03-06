@@ -1,0 +1,114 @@
+@page "/CPresentacion"
+@using ExamenBlazor.Entidades
+@using ExamenBlazor.BLL
+
+<EditForm Model="lista">
+    <DataAnnotationsValidator />
+
+    <div class="card" style="box-shadow: 8px 8px rgba(0, 0, 0, 0.26);">
+
+        <div class="card-header">
+            <h4 style="text-align: center;">Consulta de productos por presentacion</h4>
+        </div>
+
+        <div class="card-body">
+            <form>
+                <div class="input-group d-flex align-items-end">
+
+                    <InputSelect class="form-control col-2" @bind-Value="filtro">
+                        <option value="1">ID</option>
+                        <option value="2">Descripcion</option>
+                    </InputSelect>
+
+                    <div class="flex-fill mx-2">
+                        <label>Busqueda</label>
+                        <InputText class="form-control" @bind-Value="Criterio" />
+                    </div>
+
+                    <button type="button" class="btn btn-lg btn-primary" @onclick="Buscar"><span
+                            class="oi oi-magnifying-glass"></span>Buscar</button>
+                </div>
+            </form>
+        </div>
+
+        <table class="table table-light" style="box-shadow: 1px 6px rgba(0, 0, 0, 0.2);">
+            <thead class="thead">
+                <tr class="table">
+                    <th>|IdDetalle</th>
+                    <th>|IdProduucto</th>
+                    <th>|Descripcion</th>
+                    <th>|presentacion</th>
+                    <th>|Cantidad</th>
+                    <th>|Precio</th>
+                    <th>|Existencia</th>
+                </tr>
+            </thead>
+            <tbody>
+               
+                     @foreach (var item in lista)
+                    {
+                        @foreach(var item1 in @lista1){
+                            @if (item1.ProductoId == item.ProductoId){
+                            <tr>
+                                <td>@item.Id</td>
+                                <td>@item.ProductoId</td>
+                                <td>@item1.Descripcion</td>
+                                <td>@item.Descripcion</td>
+                                <td>@item.Cantidad</td>
+                                <td>RD$@item.Precio</td>
+                                <td>@(Convert.ToInt32(item1.Existencia)/Convert.ToInt32(item.Cantidad))</td> 
+                                <td><a class="btn btn-sm btn-outline-primary oi oi-eye" href="R_Productos/@item.ProductoId">Ver</a>
+                                </td>
+                            </tr>
+                             }
+                        }
+
+                    }     
+            </tbody>
+        </table>
+    </div>
+</EditForm>
+
+@code {
+
+
+    public string filtro { get; set; } = "1";
+    public string Criterio { get; set; } = "";
+    private List<Producto> lista1 { get; set; } = new List<Producto>();
+    private List<ProductoDetalle> lista { get; set; } = new List<ProductoDetalle>();
+    
+
+    [Inject]
+
+    public ProductoBLL productosBLL { get; set; }
+
+    private void Buscar()
+    {
+         if (Criterio != "")
+        {
+            switch (filtro)
+            {
+                case "1":
+                    lista = null;
+                    lista1 = null;
+                    lista = productosBLL.GetListDetalle(p => p.Id == int.Parse(Criterio));
+                    lista1 = productosBLL.GetList(p => true);
+                    break;
+
+                case "2":
+                    lista = null;
+                    lista1 = null;
+                    lista = productosBLL.GetListDetalle(p => p.Descripcion.ToLower().Contains(Criterio.ToLower()));
+                    lista1 = productosBLL.GetList(p => true);
+                    break;
+            }
+        }else{
+            lista = null;
+            lista = null;
+            lista = productosBLL.GetListDetalle(p => true);
+            lista1 = productosBLL.GetList(p => true);
+        } 
+        
+    }
+    
+}
